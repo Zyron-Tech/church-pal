@@ -7,11 +7,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # ✅ Load credentials from .env
-KUDI_USERNAME = os.getenv("KUDI_USERNAME")
-KUDI_API_KEY = os.getenv("KUDI_API_KEY")
+KUDI_USERNAME = os.getenv("KUDI_USERNAME", "mthwpeace@gmail.com")
+KUDI_API_KEY = os.getenv("KUDI_API_KEY", "zTLNJlOueo2nMsh19VRfyX7B4CZrxgwIUpac0DGHtvWFPA5dbK83SQmij6EkYq")
 SENDER_ID = os.getenv("SENDER_ID", "PEACETECH")
-RECIPIENTS = os.getenv("RECIPIENTS", "")
-MESSAGE = os.getenv("MESSAGE", "Hello! This is a reminder from your church — we love you!")
+RECIPIENTS = os.getenv("RECIPIENTS", "+2349032043408")
+MESSAGE = os.getenv("MESSAGE", "Hello! This is a reminder from your church")
 
 # ✅ Correct API URL
 API_URL = "https://kudisms.net/api/sendsms/"
