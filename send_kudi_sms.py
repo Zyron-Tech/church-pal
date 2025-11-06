@@ -1,72 +1,86 @@
-import requests
+"""
+Church Bulk SMS Automation - KudiSMS Version
+Author: Peace Mathew
+
+This script sends SMS messages to multiple recipients
+via KudiSMS API using credentials from environment variables.
+"""
+
 import os
 import time
-from datetime import datetime
+import requests
 from dotenv import load_dotenv
+from datetime import datetime
 
+# Load environment variables (works in local + GitHub Actions)
 load_dotenv()
 
-# ✅ Load credentials from .env
-KUDI_USERNAME = os.getenv("KUDI_USERNAME", "mthwpeace@gmail.com")
-KUDI_API_KEY = os.getenv("KUDI_API_KEY", "zTLNJlOueo2nMsh19VRfyX7B4CZrxgwIUpac0DGHtvWFPA5dbK83SQmij6EkYq")
-SENDER_ID = os.getenv("SENDER_ID", "PEACETECH")
-RECIPIENTS = os.getenv("RECIPIENTS", "+2349032043408")
-MESSAGE = os.getenv("MESSAGE", "Hello! This is a reminder from your church")
+# 🔐 Credentials (from .env or GitHub Secrets)
+KUDI_USERNAME = os.getenv("KUDI_USERNAME")
+KUDI_API_KEY  = os.getenv("KUDI_API_KEY")
+SENDER_ID     = os.getenv("SENDER_ID", "ChurchBot")
+RECIPIENTS    = os.getenv("RECIPIENTS", "")
+MESSAGE       = os.getenv("MESSAGE", "Hello! Reminder: Please attend church service tomorrow.")
 
-# ✅ Correct API URL
-API_URL = "https://kudisms.net/api/sendsms/"
+# ✅ Correct API endpoint
+API_URL = "https://account.kudisms.net/api/?action=send-sms"
 
-# ✅ Check for missing env
+# ✅ Validate required inputs
 if not KUDI_USERNAME or not KUDI_API_KEY:
-    print("❌ ERROR: Missing KudiSMS username or API key.")
+    print("\n❌ ERROR: Missing KUDI_USERNAME or KUDI_API_KEY.\n")
     exit(1)
 
-recipients_list = [r.strip() for r in RECIPIENTS.split(",") if r.strip()]
+# Convert CSV numbers into list
+recipients_list = [num.strip() for num in RECIPIENTS.split(",") if num.strip()]
 
+# Header / log formatting
 print("\n============================================================")
-print("KudiSMS Bulk SMS Sender")
+print("✅ KudiSMS BULK SENDER")
 print("============================================================\n")
-print(f"📱 Recipients: {len(recipients_list)} number(s)")
-print(f"📤 Sender ID: {SENDER_ID}")
-print(f"💬 Message: {MESSAGE[:45]}...")
-print(f"🔗 API URL: {API_URL}")
-print("\n============================================================")
-print("Starting SMS delivery...\n")
+print(f"📱 Recipients Count: {len(recipients_list)}")
+print(f"📤 Sender ID:        {SENDER_ID}")
+print(f"💬 Message:          {MESSAGE}")
+print(f"🔗 API Endpoint:     {API_URL}")
+print("============================================================")
+print("🚀 Starting SMS sending...\n")
 
 success, failed = 0, 0
 
+# Loop through numbers and send SMS
 for index, number in enumerate(recipients_list, start=1):
-    print(f"[{index}/{len(recipients_list)}] [{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Sending to {number}...")
+
+    print(f"[{index}/{len(recipients_list)}] ({datetime.now().strftime('%Y-%m-%d %H:%M:%S')}) Sending to {number}...")
 
     payload = {
         "username": KUDI_USERNAME,
         "password": KUDI_API_KEY,
-        "message": MESSAGE,
+        "recipient": number,
         "sender": SENDER_ID,
-        "mobiles": number
+        "message": MESSAGE,
     }
 
     try:
-        response = requests.post(API_URL, data=payload)
-        result = response.text
+        response = requests.post(API_URL, data=payload, timeout=15)
+        resp_text = response.text.strip()
 
-        if "OK" in result.upper():
-            print(f"✅ Sent successfully ({number})")
+        if resp_text.upper().startswith("OK"):
+            print(f" ✅ SUCCESS → {resp_text}")
             success += 1
         else:
-            print("❌ Failed:", result)
+            print(f" ❌ FAILED → {resp_text}")
             failed += 1
 
     except Exception as e:
-        print("⚠️ Unexpected error:", e)
+        print(f" ⚠️ ERROR: {e}")
         failed += 1
 
-    time.sleep(0.6)
+    time.sleep(0.6)  # avoid rate limit
 
+# Final summary output
 print("\n============================================================")
-print("📊 DELIVERY SUMMARY")
+print("📊 DELIVERY REPORT")
 print("============================================================")
 print(f"✅ Successful: {success}")
-print(f"❌ Failed: {failed}")
-print(f"📱 Total: {len(recipients_list)}")
-print("============================================================")
+print(f"❌ Failed:     {failed}")
+print(f"📱 Total:      {len(recipients_list)}")
+print("============================================================\n")
