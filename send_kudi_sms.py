@@ -35,7 +35,10 @@ KUDI_PASSWORD = os.environ.get("KUDI_PASSWORD")
 SENDER_ID = os.environ.get("SENDER_ID", "")
 RECIPIENTS = os.environ.get("RECIPIENTS", "")
 MESSAGE = os.environ.get("MESSAGE", DEFAULT_MESSAGE)
-THROTTLE_SECONDS = float(os.environ.get("THROTTLE", "0.6"))
+# Handle empty or missing throttle env variable safely
+raw_throttle = os.environ.get("THROTTLE", "").strip()
+THROTTLE_SECONDS = float(raw_throttle) if raw_throttle else 0.6
+
 
 # KudiSMS API Response Codes
 RESPONSE_CODES = {
