@@ -16,11 +16,11 @@ from datetime import datetime
 load_dotenv()
 
 # 🔐 Credentials (from .env or GitHub Secrets)
-KUDI_USERNAME = os.getenv("KUDI_USERNAME")
-KUDI_API_KEY  = os.getenv("KUDI_API_KEY")
+KUDI_USERNAME = os.getenv("KUDI_USERNAME","mthwpeace@gmail.com")
+KUDI_API_KEY  = os.getenv("KUDI_API_KEY", "zTLNJlOueo2nMsh19VRfyX7B4CZrxgwIUpac0DGHtvWFPA5dbK83SQmij6EkYq")
 SENDER_ID     = os.getenv("SENDER_ID", "ChurchBot")
 RECIPIENTS    = os.getenv("RECIPIENTS", "")
-MESSAGE       = os.getenv("MESSAGE", "Hello! Reminder: Please attend church service tomorrow.")
+MESSAGE       = os.getenv("MESSAGE", "Hello! ")
 
 # ✅ Correct API endpoint
 API_URL = "https://account.kudisms.net/api/?action=send-sms"
