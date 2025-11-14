@@ -23,7 +23,7 @@ RECIPIENTS    = os.getenv("RECIPIENTS", "")
 MESSAGE       = os.getenv("MESSAGE", "Hello! ")
 
 # ✅ Correct API endpoint
-API_URL = "https://account.kudisms.net/api/?action=send-sms"
+API_URL = "https://my.kudisms.net/api/sms"
 
 # ✅ Validate required inputs
 if not KUDI_USERNAME or not KUDI_API_KEY:
