@@ -5,7 +5,6 @@ This script sends SMS messages to multiple recipients
 via KudiSMS API using credentials from environment variables.
 """
 import os
-import time
 import requests
 from dotenv import load_dotenv
 from datetime import datetime
@@ -27,46 +26,47 @@ if not KUDI_API_KEY:
     print("\n❌ ERROR: Missing KUDI_API_KEY.\n")
     exit(1)
 
-# Convert CSV numbers into list
-recipients_list = [num.strip() for num in RECIPIENTS.split(",") if num.strip()]
+# Convert CSV numbers into list, strip '+' and ensure format starts with '234'
+recipients_list = [num.strip().lstrip('+') for num in RECIPIENTS.split(",") if num.strip()]
 
 # Header / log formatting
 print("\n============================================================")
 print("✅ KudiSMS BULK SENDER")
 print("============================================================\n")
-print(f"📱 Recipients Count: {len(recipients_list)}")
+print(f"📱 Recipients Count: {len(recipient_list)}")
 print(f"📤 Sender ID: {SENDER_ID}")
 print(f"💬 Message: {MESSAGE}")
 print(f"🔗 API Endpoint: {API_URL}")
 print("============================================================")
 print("🚀 Starting SMS sending...\n")
 
-success, failed = 0, 0
+# Prepare bulk recipients as comma-separated string
+recipients_str = ",".join(recipient_list)
 
-# Loop through numbers and send SMS
-for index, number in enumerate(recipient_list, start=1):
-    print(f"[{index}/{len(recipient_list)}] ({datetime.now().strftime('%Y-%m-%d %H:%M:%S')}) Sending to {number}...")
-    payload = {
-        "token": KUDI_API_KEY,
-        "senderID": SENDER_ID,
-        "recipients": number,  # Use plural; for bulk, use comma-separated string
-        "message": MESSAGE,
-        "gateway": "1"  # Try "1" for standard route; change to "3" if using corporate route
-    }
-    try:
-        response = requests.post(API_URL, data=payload, timeout=15)
-        resp_text = response.text.strip()
-        resp_json = response.json()  # Better to parse as JSON for checking status
-        if resp_json.get("status") == "success" or resp_text.upper().startswith("OK"):
-            print(f" ✅ SUCCESS → {resp_text}")
-            success += 1
-        else:
-            print(f" ❌ FAILED → {resp_text}")
-            failed += 1
-    except Exception as e:
-        print(f" ⚠️ ERROR: {e}")
-        failed += 1
-    time.sleep(0.6)  # avoid rate limit
+payload = {
+    "token": KUDI_API_KEY,
+    "senderID": SENDER_ID,
+    "recipients": recipients_str,
+    "message": MESSAGE
+}
+
+try:
+    response = requests.post(API_URL, data=payload, timeout=15)
+    resp_json = response.json()
+    resp_text = response.text.strip()
+
+    if resp_json.get("status") == "success":
+        print(f" ✅ SUCCESS → {resp_text}")
+        success = len(recipient_list)
+        failed = 0
+    else:
+        print(f" ❌ FAILED → {resp_text}")
+        success = 0
+        failed = len(recipient_list)
+except Exception as e:
+    print(f" ⚠️ ERROR: {e}")
+    success = 0
+    failed = len(recipient_list)
 
 # Final summary output
 print("\n============================================================")
@@ -74,5 +74,5 @@ print("📊 DELIVERY REPORT")
 print("============================================================")
 print(f"✅ Successful: {success}")
 print(f"❌ Failed: {failed}")
-print(f"📱 Total: {len(recipients_list)}")
+print(f"📱 Total: {len(recipient_list)}")
 print("============================================================\n")
