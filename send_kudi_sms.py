@@ -34,7 +34,7 @@ recipients_list = [num.strip().lstrip('+') for num in RECIPIENTS.split(",") if n
 print("\n============================================================")
 print("✅ KudiSMS BULK SENDER")
 print("============================================================\n")
-print(f"📱 Recipients Count: {len(recipient_list)}")
+print(f"📱 Recipients Count: {len(recipients_list)}")
 print(f"📤 Sender ID: {SENDER_ID}")
 print(f"💬 Message: {MESSAGE}")
 print(f"🔗 API Endpoint: {API_URL}")
@@ -42,7 +42,7 @@ print("============================================================")
 print("🚀 Starting SMS sending...\n")
 
 # Prepare bulk recipients as comma-separated string
-recipients_str = ",".join(recipient_list)
+recipients_str = ",".join(recipients_list)
 
 params = {
     "token": KUDI_API_KEY,
@@ -55,31 +55,32 @@ params = {
 try:
     response = requests.get(API_URL, params=params, timeout=15)
     resp_text = response.text.strip()
-
+    
     try:
         resp_json = response.json()
         if resp_json.get("status") == "success":
             print(f" ✅ SUCCESS → {resp_text}")
-            success = len(recipient_list)
+            success = len(recipients_list)
             failed = 0
         else:
             print(f" ❌ FAILED → {resp_text}")
             success = 0
-            failed = len(recipient_list)
+            failed = len(recipients_list)
     except ValueError:
         # If not JSON, check for 'OK' or similar
         if resp_text.upper().startswith("OK"):
             print(f" ✅ SUCCESS → {resp_text}")
-            success = len(recipient_list)
+            success = len(recipients_list)
             failed = 0
         else:
             print(f" ❌ FAILED → {resp_text}")
             success = 0
-            failed = len(recipient_list)
+            failed = len(recipients_list)
+
 except Exception as e:
     print(f" ⚠️ ERROR: {e}")
     success = 0
-    failed = len(recipient_list)
+    failed = len(recipients_list)
 
 # Final summary output
 print("\n============================================================")
@@ -87,5 +88,5 @@ print("📊 DELIVERY REPORT")
 print("============================================================")
 print(f"✅ Successful: {success}")
 print(f"❌ Failed: {failed}")
-print(f"📱 Total: {len(recipient_list)}")
+print(f"📱 Total: {len(recipients_list)}")
 print("============================================================\n")
