@@ -14,9 +14,10 @@ load_dotenv()
 
 # 🔐 Credentials (from .env or GitHub Secrets)
 KUDI_API_KEY = os.getenv("KUDI_API_KEY", "zTLNJlOueo2nMsh19VRfyX7B4CZrxgwIUpac0DGHtvWFPA5dbK83SQmij6EkYq")  # This is your token
-SENDER_ID = os.getenv("SENDER_ID", "")
+SENDER_ID = os.getenv("SENDER_ID", "ChurchBot")
 RECIPIENTS = os.getenv("RECIPIENTS", "")
 MESSAGE = os.getenv("MESSAGE", "Hello! ")
+GATEWAY = os.getenv("GATEWAY", "2")
 
 # ✅ Correct API endpoint
 API_URL = "https://my.kudisms.net/api/sms"
@@ -43,26 +44,38 @@ print("🚀 Starting SMS sending...\n")
 # Prepare bulk recipients as comma-separated string
 recipients_str = ",".join(recipient_list)
 
-payload = {
+params = {
     "token": KUDI_API_KEY,
     "senderID": SENDER_ID,
     "recipients": recipients_str,
-    "message": MESSAGE
+    "message": MESSAGE,
+    "gateway": GATEWAY
 }
 
 try:
-    response = requests.post(API_URL, data=payload, timeout=15)
-    resp_json = response.json()
+    response = requests.get(API_URL, params=params, timeout=15)
     resp_text = response.text.strip()
 
-    if resp_json.get("status") == "success":
-        print(f" ✅ SUCCESS → {resp_text}")
-        success = len(recipient_list)
-        failed = 0
-    else:
-        print(f" ❌ FAILED → {resp_text}")
-        success = 0
-        failed = len(recipient_list)
+    try:
+        resp_json = response.json()
+        if resp_json.get("status") == "success":
+            print(f" ✅ SUCCESS → {resp_text}")
+            success = len(recipient_list)
+            failed = 0
+        else:
+            print(f" ❌ FAILED → {resp_text}")
+            success = 0
+            failed = len(recipient_list)
+    except ValueError:
+        # If not JSON, check for 'OK' or similar
+        if resp_text.upper().startswith("OK"):
+            print(f" ✅ SUCCESS → {resp_text}")
+            success = len(recipient_list)
+            failed = 0
+        else:
+            print(f" ❌ FAILED → {resp_text}")
+            success = 0
+            failed = len(recipient_list)
 except Exception as e:
     print(f" ⚠️ ERROR: {e}")
     success = 0
