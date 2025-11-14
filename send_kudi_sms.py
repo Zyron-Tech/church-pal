@@ -15,7 +15,7 @@ load_dotenv()
 # 🔐 Credentials (from .env or GitHub Secrets)
 KUDI_API_KEY = os.getenv("KUDI_API_KEY", "zTLNJlOueo2nMsh19VRfyX7B4CZrxgwIUpac0DGHtvWFPA5dbK83SQmij6EkYq")  # This is your token
 SENDER_ID = os.getenv("SENDER_ID", "ChurchBot")
-RECIPIENTS = os.getenv("RECIPIENTS", "")
+RECIPIENTS = "2349032043408"
 MESSAGE = os.getenv("MESSAGE", "Hello! ")
 GATEWAY = os.getenv("GATEWAY", "2")
 
