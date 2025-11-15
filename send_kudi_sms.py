@@ -104,8 +104,8 @@ def personalize_message(template, member):
 
 def send_sms(phone, message, sender_id, gateway):
     """Send SMS to a single recipient"""
-    # Clean phone number
-    phone = phone.strip().lstrip('+')
+    # Convert phone to string and clean
+    phone = str(phone).strip().lstrip('+')
     
     # Ensure Nigerian format
     if phone.startswith('0'):
@@ -188,7 +188,7 @@ def main():
     
     for i, member in enumerate(valid_members, 1):
         name = member.get('name', 'Member')
-        phone = member.get('phone', '')
+        phone = str(member.get('phone', '')).strip()  # Convert to string first
         
         # Personalize message
         personalized_msg = personalize_message(message_template, member)
